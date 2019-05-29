@@ -1,4 +1,4 @@
-@extends('core::admin.'.$theme_cms->value.'.template')
+@extends('core::admin.'.$theme_cms->value.'.templates.parent')
 
 @section('title_dashboard', 'User')
 

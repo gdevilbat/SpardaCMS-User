@@ -15,6 +15,7 @@ use Gdevilbat\SpardaCMS\Modules\Core\Repositories\Repository;
 use Validator;
 use DB;
 use View;
+use Auth;
 
 class UserController extends CoreController
 {
@@ -77,13 +78,16 @@ class UserController extends CoreController
             $i = 0;
             foreach ($this->data['users'] as $key_user => $user) 
             {
-                $data[$i][0] = $user->id;
-                $data[$i][1] = $user->name;
-                $data[$i][2] = $user->email;
-                $data[$i][3] = $user->role->first()->name;
-                $data[$i][4] = $user->created_at->toDateTimeString();
-                $data[$i][5] = $this->getActionTable($user);
-                $i++;
+                if(Auth::user()->can('read-user', $user) && Auth::user()->id != $user->id && $user->role->first()->slug != 'super-admin')
+                {
+                    $data[$i][0] = $user->id;
+                    $data[$i][1] = $user->name;
+                    $data[$i][2] = $user->email;
+                    $data[$i][3] = $user->role->first()->name;
+                    $data[$i][4] = $user->created_at->toDateTimeString();
+                    $data[$i][5] = $this->getActionTable($user);
+                    $i++;
+                }
             }
         
         /*=====  End of Parsing Datatable  ======*/
@@ -115,6 +119,7 @@ class UserController extends CoreController
         {
             $this->data['user'] = $this->user_repository->with('role')->find(decrypt($_GET['code']));
             $this->data['method'] = method_field('PUT');
+            $this->authorize('update-user', $this->data['user']);
         }
 
         return view('user::admin.'.$this->data['theme_cms']->value.'.content.form', $this->data);
@@ -162,17 +167,26 @@ class UserController extends CoreController
         {
             $data = $request->except('_token', '_method', 'password_confirmation', 'role_id');
             $user = new $this->user_m;
+            $this->authorize('create-user');
         }
         else
         {
             $data = $request->except('_token', '_method', 'password_confirmation', 'role_id', 'id');
             $user = $this->user_repository->findOrFail(decrypt($request->input('id')));
+            $this->authorize('update-user', $user);
         }
 
         foreach ($data as $key => $value) 
         {
             $user->$key = $value;
         }
+
+        if($request->isMethod('POST'))
+        {
+            $user->created_by = Auth::id();
+        }
+
+        $user->modified_by = Auth::id();
 
         if($user->save())
         {
@@ -245,6 +259,7 @@ class UserController extends CoreController
     public function destroy(Request $request)
     {
         $query = $this->user_m->findOrFail(decrypt($request->input('id')));
+        $this->authorize('delete-user', $query);
 
         try {
             if($query->delete())

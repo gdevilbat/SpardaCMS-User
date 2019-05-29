@@ -1,4 +1,4 @@
-@extends('core::admin.'.$theme_cms->value.'.template')
+@extends('core::admin.'.$theme_cms->value.'.templates.parent')
 
 @section('title_dashboard', ' User')
 
@@ -63,16 +63,18 @@
                     @endif
                 </div>
 
-                <div class="row mb-4">
-                    <div class="col-md-5">
-                        <a href="{{action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@create')}}" class="btn btn-brand m-btn m-btn--custom m-btn--icon m-btn--pill m-btn--air">
-                            <span>
-                                <i class="la la-plus"></i>
-                                <span>Add New User</span>
-                            </span>
-                        </a>
+                @can('create-user')
+                    <div class="row mb-4">
+                        <div class="col-md-5">
+                            <a href="{{action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@create')}}" class="btn btn-brand m-btn m-btn--custom m-btn--icon m-btn--pill m-btn--air">
+                                <span>
+                                    <i class="la la-plus"></i>
+                                    <span>Add New User</span>
+                                </span>
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @endcan
 
                 <!--begin: Datatable -->
                 <table class="table table-striped" id="data-user" width="100%">
