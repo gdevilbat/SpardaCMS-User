@@ -58,7 +58,7 @@ class UserController extends CoreController
         if($searchValue)
         {
             $filtered->where(DB::raw("CONCAT(name,'-',email)"), 'like', '%'.$searchValue.'%')
-                     ->whereHas('role', function($query) use ($searchValue){
+                     ->orWhereHas('role', function($query) use ($searchValue){
                         $query->where(DB::raw("CONCAT(name,'-',slug)"), 'like', '%'.$searchValue.'%');
                      });
         }
@@ -167,7 +167,6 @@ class UserController extends CoreController
         {
             $data = $request->except('_token', '_method', 'password_confirmation', 'role_id');
             $user = new $this->user_m;
-            $this->authorize('create-user');
         }
         else
         {
