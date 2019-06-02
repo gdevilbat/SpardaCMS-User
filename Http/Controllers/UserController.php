@@ -57,7 +57,7 @@ class UserController extends CoreController
 
         if($searchValue)
         {
-            $filtered->where(DB::raw("CONCAT(name,'-',email)"), 'like', '%'.$searchValue.'%')
+            $filtered->where(DB::raw("CONCAT(name,'-',email,'-',created_at)"), 'like', '%'.$searchValue.'%')
                      ->orWhereHas('role', function($query) use ($searchValue){
                         $query->where(DB::raw("CONCAT(name,'-',slug)"), 'like', '%'.$searchValue.'%');
                      });
