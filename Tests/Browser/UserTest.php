@@ -52,15 +52,15 @@ class UserTest extends DuskTestCase
                     ->waitForText('Master Data of User')
                     ->assertSee('Successfully Add User!');
 
-            $browser->waitForText('Action')
-                    ->clickLink('Action')
+            $browser->waitForText('Actions')
+                    ->clickLink('Actions')
                     ->clickLink('Edit')
                     ->press('Submit')
                     ->waitForText('Master Data of User')
                     ->assertSee('Successfully Update User!');
 
-            $browser->waitForText('Action')
-                    ->clickLink('Action')
+            $browser->waitForText('Actions')
+                    ->clickLink('Actions')
                     ->clickLink('Delete')
                     ->waitForText('Delete Confirmation')
                     ->press('Delete')
