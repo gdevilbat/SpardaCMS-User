@@ -111,7 +111,7 @@
                             <select name="role_id" class="form-control m-input m-input--solid">
                                 <option value="" selected disabled>-- Select One --</option>
                                 @foreach ($roles as $role)
-                                    <option value="{{encrypt($role->id)}}" {{old('role_id') && old('role_id') == $role->id ? 'selected' : (!empty($user) && $user->role->first()->id == $role->id ? 'selected' : '')}}> {{ucfirst($role->name)}} </option>}
+                                    <option value="{{encrypt($role->getKey())}}" {{old('role_id') && old('role_id') == $role->getKey() ? 'selected' : (!empty($user) && $user->role->first()->getKey() == $role->getKey() ? 'selected' : '')}}> {{ucfirst($role->name)}} </option>}
                                 @endforeach
                             </select>
                         </div>
