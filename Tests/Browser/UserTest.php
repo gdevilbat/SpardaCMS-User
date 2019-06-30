@@ -55,6 +55,10 @@ class UserTest extends DuskTestCase
             $browser->waitForText('Actions')
                     ->clickLink('Actions')
                     ->clickLink('Edit')
+                    ->type('email', $faker->unique()->safeEmail)
+                    ->type('name', $faker->name)
+                    ->type('password', $password)
+                    ->type('password_confirmation', $password)
                     ->press('Submit')
                     ->waitForText('Master Data of User')
                     ->assertSee('Successfully Update User!');
