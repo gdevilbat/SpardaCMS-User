@@ -16,6 +16,7 @@ use Validator;
 use DB;
 use View;
 use Auth;
+use Storage;
 
 class UserController extends CoreController
 {
@@ -199,6 +200,7 @@ class UserController extends CoreController
 
             if($request->isMethod('POST'))
             {
+                Storage::put('users/'.$user->id.'/'.'.gitattributes', '');
                 return redirect(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Add User!'));
             }
             else
@@ -263,6 +265,7 @@ class UserController extends CoreController
         try {
             if($query->delete())
             {
+                Storage::deleteDirectory('users/'.decrypt($request->input('id')));
                 return redirect()->back()->with('global_message', array('status' => 200,'message' => 'Successfully Delete User!'));
             }
             
