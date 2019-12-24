@@ -141,7 +141,7 @@ class UserController extends CoreController
         ]);
 
         $validator->sometimes('password', 'min:8', function ($input) {
-            return $input->password >= 1;
+            return strlen($input->password) >= 1;
         });
 
         if($request->isMethod('POST'))
