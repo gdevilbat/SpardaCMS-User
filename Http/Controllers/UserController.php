@@ -24,11 +24,11 @@ class UserController extends CoreController
     {
         parent::__construct();
         $this->role_m = new Role_m;
-        $this->role_repository = new Repository(new Role_m);
+        $this->role_repository = new Repository(new Role_m, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class));
         $this->role_user_m = new RoleUser_m;
-        $this->role_user_repository = new Repository(new RoleUser_m);
+        $this->role_user_repository = new Repository(new RoleUser_m, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class));
         $this->user_m = new User_m;
-        $this->user_repository = new Repository(new User_m);
+        $this->user_repository = new Repository(new User_m, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class));
     }
 
     /**
