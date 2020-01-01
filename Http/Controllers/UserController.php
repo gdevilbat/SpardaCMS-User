@@ -266,11 +266,11 @@ class UserController extends CoreController
             if($query->delete())
             {
                 Storage::deleteDirectory('users/'.decrypt($request->input('id')));
-                return redirect()->back()->with('global_message', array('status' => 200,'message' => 'Successfully Delete User!'));
+                return redirect(action('\\'.get_class($this).'@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Delete User!'));
             }
             
         } catch (\Exception $e) {
-            return redirect()->back()->with('global_message', array('status' => 200,'message' => 'Failed Delete User, It\'s Has Been Used!'));
+            return redirect(action('\\'.get_class($this).'@index'))->with('global_message', array('status' => 200,'message' => 'Failed Delete User, It\'s Has Been Used!'));
         }
     }
 }
