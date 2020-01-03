@@ -79,12 +79,21 @@ class UserController extends CoreController
             $i = 0;
             foreach ($this->data['users'] as $key_user => $user) 
             {
-                if(Auth::user()->can('read-user', $user) && Auth::user()->id != $user->id && $user->role->first()->slug != 'super-admin')
+                if(Auth::user()->can('read-user', $user) && Auth::user()->id != $user->id && (empty($user->role) || (!empty($user->role) && $user->role->first()->slug != 'super-admin')))
                 {
                     $data[$i][0] = $user->id;
                     $data[$i][1] = $user->name;
                     $data[$i][2] = $user->email;
-                    $data[$i][3] = $user->role->first()->name;
+
+                    if(!empty($user->role))
+                    {
+                        $data[$i][3] = $user->role->first()->name;
+                    }
+                    else
+                    {
+                        $data[$i][3] = '-';
+                    }
+
                     $data[$i][4] = $user->created_at->toDateTimeString();
                     $data[$i][5] = $this->getActionTable($user);
                     $i++;
