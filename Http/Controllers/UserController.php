@@ -79,13 +79,13 @@ class UserController extends CoreController
             $i = 0;
             foreach ($this->data['users'] as $key_user => $user) 
             {
-                if(Auth::user()->can('read-user', $user) && Auth::user()->id != $user->id && (empty($user->role) || (!empty($user->role) && $user->role->first()->slug != 'super-admin')))
+                if(Auth::user()->can('read-user', $user) && Auth::user()->id != $user->id && (empty($user->role->first()) || (!empty($user->role->first()) && $user->role->first()->slug != 'super-admin')))
                 {
                     $data[$i][0] = $user->id;
                     $data[$i][1] = $user->name;
                     $data[$i][2] = $user->email;
 
-                    if(!empty($user->role))
+                    if(!empty($user->role->first()))
                     {
                         $data[$i][3] = $user->role->first()->name;
                     }
