@@ -33,6 +33,23 @@ Route::group(['prefix' => 'control', 'middleware' => 'core.menu'], function() {
 	        /*=====  End of User CMS  ======*/
 		});
 
+		Route::group(['prefix' => 'group'], function() {
+	        /*=============================================
+	        =            User CMS            =
+	        =============================================*/
+	        
+			    Route::get('master', 'GroupController@index')->middleware('can:menu-user')->name('group');
+			    Route::get('form', 'GroupController@create')->name('group');
+			    Route::post('form', 'GroupController@store')->middleware('can:create-user')->name('group');
+			    Route::put('form', 'GroupController@store')->name('group');
+			    Route::delete('form', 'GroupController@destroy')->name('group');
+
+			    Route::group(['prefix' => 'api'], function() {
+				    Route::get('master', 'GroupController@serviceMaster')->middleware('can:menu-user');
+			    });
+	        
+	        /*=====  End of User CMS  ======*/
+		});
         
 	});
 });

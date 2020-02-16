@@ -37,7 +37,7 @@ class UserController extends CoreController
      */
     public function index()
     {
-        return view('user::admin.'.$this->data['theme_cms']->value.'.content.master', $this->data);
+        return view('user::admin.'.$this->data['theme_cms']->value.'.content.User.master', $this->data);
     }
 
     public function serviceMaster(Request $request)
@@ -107,7 +107,7 @@ class UserController extends CoreController
 
     private function getActionTable($user)
     {
-        $view = View::make('user::admin.'.$this->data['theme_cms']->value.'.content.service_master', [
+        $view = View::make('user::admin.'.$this->data['theme_cms']->value.'.content.User.service_master', [
             'user' => $user
         ]);
 
@@ -132,7 +132,7 @@ class UserController extends CoreController
             $this->authorize('update-user', $this->data['user']);
         }
 
-        return view('user::admin.'.$this->data['theme_cms']->value.'.content.form', $this->data);
+        return view('user::admin.'.$this->data['theme_cms']->value.'.content.User.form', $this->data);
     }
 
     /**
