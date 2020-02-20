@@ -34,7 +34,7 @@ class UserTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) use ($user, $role) {
             $faker = \Faker\Factory::create();
-            $password = $faker->word;
+            $password = $faker->name;
 
             $browser->loginAs($user)
                     ->visit(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@index'))

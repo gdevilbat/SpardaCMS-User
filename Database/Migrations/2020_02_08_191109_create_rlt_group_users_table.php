@@ -14,6 +14,7 @@ class CreateRltGroupUsersTable extends Migration
     public function up()
     {
         Schema::create('rlt_group_users', function (Blueprint $table) {
+            $table->increments('id_rlt_group_users');
             $table->unsignedBigInteger('user_id')->unique();
             $table->unsignedInteger('group_id');
             $table->unsignedBigInteger('created_by');
@@ -23,7 +24,7 @@ class CreateRltGroupUsersTable extends Migration
 
         Schema::table('rlt_group_users', function($table){
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('group_id')->references('id_group')->on('group')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('group_id')->references('id_group')->on('group')->onDelete('restrict')->onUpdate('restrict');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('restrict');
             $table->foreign('modified_by')->references('id')->on('users')->onDelete('restrict')->onUpdate('restrict');
         });
