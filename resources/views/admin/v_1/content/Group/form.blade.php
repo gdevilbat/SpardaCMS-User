@@ -1,6 +1,6 @@
 @extends('core::admin.'.$theme_cms->value.'.templates.parent')
 
-@section('title_dashboard', 'Agent')
+@section('title_dashboard', 'Group')
 
 @section('breadcrumb')
         <ul class="m-subheader__breadcrumbs m-nav m-nav--inline">
@@ -18,7 +18,7 @@
             <li class="m-nav__separator">-</li>
             <li class="m-nav__item">
                 <a href="" class="m-nav__link">
-                    <span class="m-nav__link-text">Agent</span>
+                    <span class="m-nav__link-text">Group</span>
                 </a>
             </li>
         </ul>
@@ -38,7 +38,7 @@
                             <i class="fa fa-gear"></i>
                         </span>
                         <h3 class="m-portlet__head-text">
-                            Agent Form
+                            Group Form
                         </h3>
                     </div>
                 </div>
