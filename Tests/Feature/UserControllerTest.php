@@ -108,7 +108,7 @@ class UserControllerTest extends TestCase
 				        ->post(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@store'), [
 				        	'email' => empty($user->email) ? $faker->unique()->safeEmail : $user->email,
 				        	'name' => empty($user->name) ? $faker->name : $user->name,
-				        	'role_id' => encrypt($user->role->first()->getKey()),
+				        	'role_id' => encrypt($user->role->getKey()),
 				        	$user->getKeyName() => encrypt($user->getKey()),
 							'_method' => 'PUT'
 				    	])
