@@ -11,11 +11,11 @@
 |
 */
 
-Route::group(['prefix' => 'control', 'middleware' => 'core.menu'], function() {
+Route::group(['prefix' => 'control', 'middleware' => 'core.auth'], function() {
     
-	Route::group(['middleware' => 'core.auth'], function() {
+	Route::group(['prefix' => 'user'], function() {
 
-		Route::group(['prefix' => 'user'], function() {
+		Route::group(['middleware' => 'core.menu'], function() {
 	        /*=============================================
 	        =            User CMS            =
 	        =============================================*/
@@ -26,14 +26,19 @@ Route::group(['prefix' => 'control', 'middleware' => 'core.menu'], function() {
 			    Route::put('form', 'UserController@store')->name('user');
 			    Route::delete('form', 'UserController@destroy')->name('user');
 
-			    Route::group(['prefix' => 'api'], function() {
-				    Route::get('master', 'UserController@serviceMaster')->middleware('can:menu-user');
-			    });
 	        
 	        /*=====  End of User CMS  ======*/
 		});
 
-		Route::group(['prefix' => 'group'], function() {
+	    Route::group(['prefix' => 'api'], function() {
+		    Route::get('master', 'UserController@serviceMaster')->middleware('can:menu-user');
+	    });
+
+	});
+
+	Route::group(['prefix' => 'group'], function() {
+
+		Route::group(['middleware' => 'core.menu'], function() {
 	        /*=============================================
 	        =            User CMS            =
 	        =============================================*/
@@ -44,13 +49,14 @@ Route::group(['prefix' => 'control', 'middleware' => 'core.menu'], function() {
 			    Route::put('form', 'GroupController@store')->name('group');
 			    Route::delete('form', 'GroupController@destroy')->name('group');
 
-			    Route::group(['prefix' => 'api'], function() {
-				    Route::get('master', 'GroupController@serviceMaster')->middleware('can:menu-user');
-			    });
 	        
 	        /*=====  End of User CMS  ======*/
 		});
-        
+
+	    Route::group(['prefix' => 'api'], function() {
+		    Route::get('master', 'GroupController@serviceMaster')->middleware('can:menu-user');
+	    });
+	    
 	});
 });
 
