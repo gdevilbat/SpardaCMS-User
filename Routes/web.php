@@ -43,10 +43,11 @@ Route::group(['prefix' => 'control', 'middleware' => 'core.auth'], function() {
 	        =            User CMS            =
 	        =============================================*/
 	        
-			    Route::get('master', 'GroupController@index')->middleware('can:group-user')->name('group');
+			    Route::get('master', 'GroupController@index')->middleware('can:group-user')->name('cms.group.master');
 			    Route::get('form', 'GroupController@create')->name('group');
 			    Route::post('form', 'GroupController@store')->middleware('can:group-user')->name('group');
 			    Route::put('form', 'GroupController@store')->name('group');
+			    Route::post('group-scope', 'GroupController@accessScope')->middleware('can:group-user')->name('cms.group-scope.store');
 			    Route::delete('form', 'GroupController@destroy')->name('group');
 
 	        

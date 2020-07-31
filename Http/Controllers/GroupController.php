@@ -9,7 +9,9 @@ use Gdevilbat\SpardaCMS\Modules\Core\Http\Controllers\CoreController;
 
 use Gdevilbat\SpardaCMS\Modules\User\Entities\Group as Group_m;
 use Gdevilbat\SpardaCMS\Modules\User\Entities\RltGroupUsers as RltGroupUsers_m;
+use Gdevilbat\SpardaCMS\Modules\Core\Entities\Module as Module_m;
 use Gdevilbat\SpardaCMS\Modules\Core\Entities\User as User_m;
+use Gdevilbat\SpardaCMS\Modules\User\Entities\RltAccessGroup as RltAccessGroup_m;
 
 use Gdevilbat\SpardaCMS\Modules\Core\Repositories\Repository;
 
@@ -24,6 +26,9 @@ class GroupController extends CoreController
         parent::__construct();
         $this->group_repository = new Repository(new Group_m, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class));
         $this->group_repository->setModule('user');
+        $this->module_m = new Module_m;
+        $this->module_repository = new Repository(new Module_m, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class));
+        $this->access_role_m = new RltAccessGroup_m;
     }
 
     /**
@@ -32,93 +37,9 @@ class GroupController extends CoreController
      */
     public function index()
     {
+        $this->data['modules'] = $this->module_repository->all();
+        $this->data['groups'] = $this->group_repository->with(['users', 'modules'])->get();
         return view('user::admin.'.$this->data['theme_cms']->value.'.content.group.master', $this->data);
-    }
-
-    public function serviceMaster(Request $request)
-    {
-        $column = [Group_m::getPrimaryKey(), 'group_name', 'group_email','group_telp', 'group_address','total_staff','created_at'];;
-
-        $length = !empty($request->input('length')) ? $request->input('length') : 10 ;
-        $column = !empty($request->input('order.0.column')) ? $column[$request->input('order.0.column')] : Group_m::getPrimaryKey() ;
-        $dir = !empty($request->input('order.0.dir')) ? $request->input('order.0.dir') : 'DESC' ;
-        $searchValue = $request->input('search')['value'];
-
-        $query = $this->group_repository->buildQueryByCreatedUser([])
-                                        ->with('users')
-                                        ->orderBy($column, $dir);
-
-        $recordsTotal = $query->count();
-        $filtered = $query;
-
-        if($searchValue)
-        {
-            $filtered->where(function($query) use ($searchValue){
-                        $query->where(DB::raw("CONCAT(group_name,'-',ifnull(".$this->group_repository::getTableName().".group_email,''),'-',ifnull(".$this->group_repository::getTableName().".group_telp,''),'-',ifnull(".$this->group_repository::getTableName().".group_telp,''),'-',ifnull(".$this->group_repository::getTableName().".created_at,''))"), 'like', '%'.$searchValue.'%')
-                                ;
-
-                    });
-        }
-
-        $filteredTotal = $filtered->count();
-
-        $this->data['length'] = $length;
-        $this->data['column'] = $column;
-        $this->data['dir'] = $dir;
-        $this->data['groups'] = $filtered->offset($request->input('start'))->limit($length)->get();
-
-        $table =  $this->parsingDataTable($this->data['groups']);
-
-        return ['data' => $table, 'draw' => (integer)$request->input('draw'), 'recordsTotal' => $recordsTotal, 'recordsFiltered' => $filteredTotal];
-    }
-
-    public function parsingDataTable($groups)
-    {
-        /*=========================================
-        =            Parsing Datatable            =
-        =========================================*/
-            
-            $data = array();
-            $i = 0;
-            foreach ($groups as $key_group => $group) 
-            {
-                if(Auth::user()->can('read-user', $group))
-                {
-                    $data[$i][] = $group->getKey();
-                    $data[$i][] = $group->group_name;
-                    $data[$i][] = $group->group_email ?: '-';
-                    $data[$i][] = $group->group_telp ?: '-';
-                    $data[$i][] = $group->group_address ?: '-';
-                    $data[$i][] = $group->users->count();
-
-                    if(!empty($group->created_at))
-                    {
-                        $data[$i][] = $group->created_at->toDateTimeString();
-                    }
-                    else
-                    {
-                        $data[$i][] = '-';
-                    }
-
-                    $data[$i][] = $this->getActionTable($group);
-                    $i++;
-                }
-            }
-
-            return $data;
-        
-        /*=====  End of Parsing Datatable  ======*/
-    }
-
-    public function getActionTable($group)
-    {
-        $view = View::make('user::admin.'.$this->data['theme_cms']->value.'.content.Group.service_master', [
-            'group' => $group
-        ]);
-
-        $html = $view->render();
-       
-       return $html;
     }
 
     /**
@@ -133,6 +54,7 @@ class GroupController extends CoreController
                                                                     ->orWhere('slug', \Gdevilbat\SpardaCMS\Modules\Role\Entities\Role::ROLE_ADMIN)
                                                                     ->orWhere('slug', \Gdevilbat\SpardaCMS\Modules\Role\Entities\Role::ROLE_PUBLIC);
                                                             })
+                                                            ->where(User_m::getPrimaryKey(), '!=', Auth::id())
                                                         ->get();
         if(isset($_GET['code']))
         {
@@ -156,6 +78,19 @@ class GroupController extends CoreController
             'group_email' => 'max:191',
             'group_telp' => 'max:191',
         ]);
+
+        if($request->isMethod('POST'))
+        {
+            $validator->addRules([
+                'slug' => 'max:191|unique:'.Group_m::getTableName().',slug'
+            ]);
+        }
+        else
+        {
+            $validator->addRules([
+                'slug' => 'max:191|unique:'.Group_m::getTableName().',slug,'.decrypt($request->input(\Gdevilbat\SpardaCMS\Modules\User\Entities\Group::getPrimaryKey())).','.\Gdevilbat\SpardaCMS\Modules\User\Entities\Group::getPrimaryKey()
+            ]);
+        }
 
         $validator->sometimes('group_email', 'email', function ($input) {
             return strlen($input->group_email) > 0;
@@ -251,6 +186,47 @@ class GroupController extends CoreController
             {
                 return redirect()->back()->with('global_message', array('status' => 400, 'message' => 'Failed To Update Group!'));
             }
+        }
+    }
+
+    public function accessScope(Request $request)
+    {
+        $this->validate($request, [
+                'access' => 'required'
+        ]);
+
+        $input = $request->input('access');
+
+        foreach ($input as $role_group) 
+        {
+            foreach($role_group as $value)
+            {
+                $role =  $this->access_role_m->where(\Gdevilbat\SpardaCMS\Modules\User\Entities\Group::FOREIGN_KEY, decrypt($value[\Gdevilbat\SpardaCMS\Modules\User\Entities\Group::FOREIGN_KEY]))->where(\Gdevilbat\SpardaCMS\Modules\Core\Entities\Module::FOREIGN_KEY, decrypt($value[\Gdevilbat\SpardaCMS\Modules\Core\Entities\Module::FOREIGN_KEY]))->first();
+                if(empty($role))
+                    $role = new $this->access_role_m;
+
+                $role[\Gdevilbat\SpardaCMS\Modules\User\Entities\Group::FOREIGN_KEY] = decrypt($value[\Gdevilbat\SpardaCMS\Modules\User\Entities\Group::FOREIGN_KEY]);
+                $role[\Gdevilbat\SpardaCMS\Modules\Core\Entities\Module::FOREIGN_KEY] = decrypt($value[\Gdevilbat\SpardaCMS\Modules\Core\Entities\Module::FOREIGN_KEY]);
+                $role->access_scope = $value['access_scope'];
+                if(!$role->save())
+                {
+                    return redirect(route('cms.group.master'))->with('global_message', array('status' => 400, 'message' => 'Failed To Update Group Provider!'));
+                }
+            }
+        }
+
+        return redirect(route('cms.group.master'))->with('global_message', array('status' => 200, 'message' => 'Successfully To Update Group Provider!'));
+    }
+
+    public function checkRole($scope ,$modules, $id)
+    {
+        $modules = $modules->where(\Gdevilbat\SpardaCMS\Modules\Core\Entities\Module::getPrimaryKey(), $id);
+        foreach ($modules as $module) 
+        {
+            if(!property_exists(json_decode($module->pivot->access_scope), $scope))
+                return false;
+
+            return json_decode(json_decode($module->pivot->access_scope)->$scope);
         }
     }
 

@@ -76,25 +76,86 @@
                     </div>
                 @endcan
 
-                <!--begin: Datatable -->
-                <table class="table table-striped responsive data-table-ajax" id="data-Member" data-ajax="{{action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\GroupController@serviceMaster')}}" width="100%">
-                    <thead>
-                        <tr>
-                            <th data-priority="1">ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Telp</th>
-                            <th>Address</th>
-                            <th class="no-sort">Total Staff</th>
-                            <th>Created At</th>
-                            <th data-priority="2" class="no-sort">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <form action="{{route('cms.group-scope.store')}}" method="post" id="form-role">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="html_table" width="100%">
+                            <thead>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10px">No.</th>
+                                        <th>Group Name</th>
+                                        <th class="no-sort">Total Staff</th>
+                                        @foreach($modules as $module)
+                                            <th><center>{{title_case($module->slug)}}</center></th>
+                                        @endforeach
+                                        <th style="width: 50px; vertical-align: middle;">Action</th>
+                                    </tr>
+                                </thead>
+                            </thead>
+                            <tbody>
+                                @foreach ($groups as $group)
+                                    @if(empty(Auth::user()->group) || (!empty(Auth::user()->group) && Auth::user()->group->group_slug != $group->group_slug))
+                                        <tr>
+                                            <td>{{ $group->getKey() }}</td>
+                                            <td>{{ $group->group_name }}</td>
+                                            <td>{{ $group->users->count() }}</td>
+                                            @foreach ($modules as $module)
+                                                <td>
+                                                    @can('permission-'.$module->slug)
+                                                        <div class="m-form__group form-group">
+                                                            <div class="m-checkbox-list">
+                                                                @foreach($module->scope as $scope)
+                                                                    <label class="m-checkbox">
+                                                                           <input type="checkbox" class="checkbox" {{Route::current()->getController()->checkRole( $scope, $group->modules, $module->getKey()) ? "checked" : ""}}>
+                                                                            {{$scope}}
+                                                                            <input type="hidden" class="role" name="access[{{$loop->parent->parent->index}}][{{$loop->parent->index}}][access_scope][{{$scope}}]">
+                                                                            <input type="hidden" name="access[{{$loop->parent->parent->index}}][{{$loop->parent->index}}][{{\Gdevilbat\SpardaCMS\Modules\User\Entities\Group::FOREIGN_KEY}}]" value="{{encrypt($group->getKey())}}">
+                                                                            <input type="hidden" name="access[{{$loop->parent->parent->index}}][{{$loop->parent->index}}][{{\Gdevilbat\SpardaCMS\Modules\Core\Entities\Module::FOREIGN_KEY}}]" value="{{encrypt($module->getKey())}}">
+                                                                            <span></span>
+                                                                    </label>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @endcan
+                                                </td>
+                                            @endforeach
+                                            <td style="vertical-align: middle;">
+                                                <div class="btn-group">
+                                                    <a href="javascript:void(0)" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Actions
+                                                    </a>
+                                                    <div class="dropdown-menu dropdown-menu-left">
+                                                        @can('group-user', $group)
+                                                            <button class="dropdown-item" type="button">
+                                                                <a class="m-link m-link--state m-link--info" href="{{action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\GroupController@create').'?code='.encrypt($group->getKey())}}"><i class="fa fa-edit"> Edit</i></a>
+                                                            </button>
+                                                        @endcan
+                                                        @can('group-user', $group)
+                                                            <form action="{{action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\GroupController@destroy')}}" method="post" accept-charset="utf-8">
+                                                                {{method_field('DELETE')}}
+                                                                {{csrf_field()}}
+                                                                <input type="hidden" name="{{\Gdevilbat\SpardaCMS\Modules\User\Entities\Group::getPrimaryKey()}}" value="{{encrypt($group->getKey())}}">
+                                                            </form>
+                                                            <button class="dropdown-item confirm-delete" type="button"><a class="m-link m-link--state m-link--accent" data-toggle="modal" href="#small"><i class="fa fa-trash"> Delete</i></a></button>
+                                                        @endcan
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    {{method_field('POST')}}
+                    {{csrf_field()}}
+                    @can('group-user')
+                        <div class="col-md-12 d-flex justify-content-end">
+                            <button id="submit-role" type="button" class="btn btn-info m-btn m-btn--custom m-btn--icon m-btn--pill m-btn--air">Submit</button>
+                        </div>
+                    @endcan
+                </form>
 
-                <!--end: Datatable -->
             </div>
 
 
@@ -106,4 +167,8 @@
 </div>
 {{-- End of Row --}}
 
+@endsection
+
+@section('page_level_js')
+    {{Html::script(module_asset_url('role:resources/views/admin/'.$theme_cms->value.'/js/role.js').'?id='.filemtime(module_asset_path('role:resources/views/admin/'.$theme_cms->value.'/js/role.js')))}}
 @endsection

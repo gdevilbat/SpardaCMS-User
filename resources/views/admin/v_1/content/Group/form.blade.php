@@ -68,7 +68,15 @@
                             <label for="exampleInputEmail1">Group Name<span class="ml-1 m--font-danger" aria-required="true">*</span></label>
                         </div>
                         <div class="col-md-8">
-                            <input type="text" class="form-control m-input" placeholder="Group Name" name="group_name" value="{{old('group_name') ? old('group_name') : (!empty($group) ? $group->group_name : '')}}">
+                            <input type="text" class="form-control m-input slugify" placeholder="Group Name" name="group_name" data-target="slug" value="{{old('group_name') ? old('group_name') : (!empty($group) ? $group->group_name : '')}}">
+                        </div>
+                    </div>
+                    <div class="form-group m-form__group d-flex">
+                        <div class="col-md-4 d-flex justify-content-end py-3">
+                            <label for="exampleInputEmail1">Group Slug<span class="ml-1 m--font-danger" aria-required="true">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control m-input" name="group_slug" placeholder="Group slug" id="slug" value="{{old('group_slug') ? old('group_slug') : (!empty($group) ? $group->group_slug : '')}}">
                         </div>
                     </div>
                     <div class="form-group m-form__group d-md-flex">
@@ -99,7 +107,7 @@
                             <label for="exampleInputEmail1">Group Address</label>
                         </div>
                         <div class="col-md-8">
-                            <textarea type="text" class="form-control m-input" placeholder="Group Address" name="group_address">{{old('group_address') ? old('group_address') : (!empty($group) ? $group->group_address : '')}}</textarea>
+                            <textarea type="text" class="form-control m-input autosize" placeholder="Group Address" name="group_address">{{old('group_address') ? old('group_address') : (!empty($group) ? $group->group_address : '')}}</textarea>
                         </div>
                     </div>
                     <div class="form-group m-form__group d-md-flex">
@@ -110,7 +118,7 @@
                             <select class="form-control select2" name="user_id[]" multiple placeholder="Select Member Of This Group">
                                 @foreach ($users as $user)
                                     @if(!empty($group))
-                                        <option value="{{encrypt($user->getKey())}}" {{!empty($group) && $group->users->where('id', $user->getKey())->count() > 0 ? 'selected' : ''}} {{!empty($user->group) && $user->group->getKey() == $group->getKey() ? 'disabled' : ''}}>{{$user->name}}{{!empty($user->group) && $user->group->getKey() == $group->getKey() ? ' -- Terdaftar di '.$user->group->group_name : ''}}</option>
+                                        <option value="{{encrypt($user->getKey())}}" {{!empty($group) && $group->users->where('id', $user->getKey())->count() > 0 ? 'selected' : ''}} {{!empty($user->group) && $user->group->getKey() != $group->getKey() ? 'disabled' : ''}}>{{$user->name}}{{!empty($user->group) && $user->group->getKey() != $group->getKey() ? ' -- Terdaftar di '.$user->group->group_name : ''}}</option>
                                     @else
                                         <option value="{{encrypt($user->getKey())}}" {{!empty($user->group) ? 'disabled' : ''}}>{{$user->name}}{{!empty($user->group) ? ' -- Terdaftar di '.$user->group->group_name : ''}}</option>
                                     @endif
@@ -142,4 +150,9 @@
 </div>
 {{-- End of Row --}}
 
+@endsection
+
+@section('page_level_js')
+    {{Html::script(module_asset_url('core:assets/js/autosize.min.js'))}}
+    {{Html::script(module_asset_url('core:assets/js/slugify.js'))}}
 @endsection
