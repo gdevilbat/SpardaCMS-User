@@ -22,7 +22,7 @@ class UserModuleTableSeeder extends Seeder
             [
                 'name' => 'User',
                 'slug' => 'user',
-                'scope' => json_encode(array('menu', 'create', 'read', 'update', 'delete')),
+                'scope' => json_encode(array('menu', 'create', 'read', 'update', 'delete', 'group')),
                 'is_scanable' => '1',
                 'created_at' => \Carbon\Carbon::now()
             ]

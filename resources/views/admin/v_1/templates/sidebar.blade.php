@@ -13,7 +13,7 @@
     </li>
 @endcan
 @can('group-user')
-    <li class="m-menu__item  {{Route::current()->getName() == 'group' ? 'm-menu__item--active' : ''}}" aria-haspopup="true">
+    <li class="m-menu__item  {{strstr(Route::current()->getName(), 'cms.group') ? 'm-menu__item--active' : ''}}" aria-haspopup="true">
         <a href="{{action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\GroupController@index')}}" class="m-menu__link ">
             <i class="m-menu__link-icon fa fa-user-tie"></i>
             <span class="m-menu__link-title"> 
