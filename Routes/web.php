@@ -22,8 +22,8 @@ Route::group(['prefix' => 'control', 'middleware' => 'core.auth'], function() {
 	        
 			    Route::get('master', 'UserController@index')->middleware('can:menu-user')->name('user');
 			    Route::get('form', 'UserController@create')->name('user');
-			    Route::post('form', 'UserController@store')->middleware('can:create-user')->name('user');
-			    Route::put('form', 'UserController@store')->name('user');
+			    Route::post('form/{callback?}', 'UserController@store')->middleware('can:create-user')->name('user');
+			    Route::put('form/{callback?}', 'UserController@store')->name('user');
 			    Route::delete('form', 'UserController@destroy')->name('user');
 
 	        

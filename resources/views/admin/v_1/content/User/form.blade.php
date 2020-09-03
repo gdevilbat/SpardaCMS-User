@@ -116,6 +116,14 @@
                             </select>
                         </div>
                     </div>
+                    <div class="form-group m-form__group d-flex">
+                        <div class="col-md-4 d-flex justify-content-end py-3">
+                            <label for="exampleInputEmail1">Meta Title</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control m-input" placeholder="Meta Keyword" name="meta[ig_account]" value="{{old('meta.ig_account') ? old('meta.ig_account') : (!empty($user) && $user->userMeta->where('meta_key', 'ig_account')->first() ? $user->userMeta->where('meta_key', 'ig_account')->first()->meta_value : '')}}">
+                        </div>
+                    </div>
                 </div>
                 {{csrf_field()}}
                 @if(isset($_GET['code']))
