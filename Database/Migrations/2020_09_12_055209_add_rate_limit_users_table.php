@@ -15,6 +15,7 @@ class AddRateLimitUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->decimal('rate_limit', 6, 0)->after('api_token')
+                        ->nullable()
                         ->default(null);
         });
     }
