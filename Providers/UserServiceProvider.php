@@ -26,6 +26,8 @@ class UserServiceProvider extends ServiceProvider
         $this->registerViews();
         $this->registerFactories();
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+
+        $this->app['router']->aliasMiddleware('api.cors', \Fruitcake\Cors\HandleCors::class);
     }
 
     /**
@@ -50,6 +52,13 @@ class UserServiceProvider extends ServiceProvider
         ], 'config');
         $this->mergeConfigFrom(
             __DIR__.'/../Config/config.php', 'user'
+        );
+
+        $this->publishes([
+            __DIR__.'/../Config/cors.php' => config_path('cors.php'),
+        ], 'config');
+        $this->mergeConfigFrom(
+            __DIR__.'/../Config/cors.php', 'cors'
         );
     }
 
