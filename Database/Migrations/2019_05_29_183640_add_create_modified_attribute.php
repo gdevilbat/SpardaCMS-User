@@ -32,13 +32,13 @@ class AddCreateModifiedAttribute extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'created_by'));
+            if (Schema::hasColumn('users', 'created_by'))
             {
                 $table->dropForeign(['created_by']);
                 $table->dropColumn('created_by');
             }
 
-            if (Schema::hasColumn('users', 'modified_by'));
+            if (Schema::hasColumn('users', 'modified_by'))
             {
                 $table->dropForeign(['modified_by']);
                 $table->dropColumn('modified_by');

@@ -28,7 +28,7 @@ class AddRateLimitUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'rate_limit'));
+            if (Schema::hasColumn('users', 'rate_limit'))
             {
                 $table->dropColumn('rate_limit');
             }

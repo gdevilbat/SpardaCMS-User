@@ -26,7 +26,7 @@ class AddGroupSlugAttribute extends Migration
     public function down()
     {
         Schema::table('group', function (Blueprint $table) {
-            if (Schema::hasColumn('group', 'group_slug'));
+            if (Schema::hasColumn('group', 'group_slug'))
             {
                 $table->dropColumn('group_slug');
             }
