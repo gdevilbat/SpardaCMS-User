@@ -39,7 +39,7 @@ class GroupController extends CoreController
     {
         $this->data['modules'] = $this->module_repository->all();
         $this->data['groups'] = $this->group_repository->with(['users', 'modules'])->get();
-        return view('user::admin.'.$this->data['theme_cms']->value.'.content.group.master', $this->data);
+        return view('user::admin.'.$this->data['theme_cms']->value.'.content.Group.master', $this->data);
     }
 
     /**
@@ -63,7 +63,7 @@ class GroupController extends CoreController
             $this->authorize('update-user', $this->data['group']);
         }
 
-        return view('user::admin.'.$this->data['theme_cms']->value.'.content.group.form', $this->data);
+        return view('user::admin.'.$this->data['theme_cms']->value.'.content.Group.form', $this->data);
     }
 
     /**
