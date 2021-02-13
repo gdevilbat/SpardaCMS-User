@@ -47,7 +47,7 @@ class UserController extends CoreController
         $column = ['id', 'name', 'email', 'role', 'created_at'];
 
         $length = !empty($request->input('length')) ? $request->input('length') : 10 ;
-        $column = !empty($request->input('order.0.column')) ? $column[$request->input('order.0.column')] : 'id' ;
+        $column = $request->input('order.0.column') != null ? $column[$request->input('order.0.column')] : 'id' ;
         $dir = !empty($request->input('order.0.dir')) ? $request->input('order.0.dir') : 'DESC' ;
         $searchValue = $request->input('search')['value'];
 
