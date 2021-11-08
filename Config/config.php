@@ -1,5 +1,6 @@
 <?php
 
 return [
-    'name' => 'User'
+    'name' => 'User',
+    'userRepository' => \Gdevilbat\SpardaCMS\Modules\User\Repositories\UserRepository::class
 ];

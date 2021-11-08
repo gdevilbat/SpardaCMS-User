@@ -21,16 +21,12 @@ use Storage;
 
 class UserController extends CoreController
 {
-    public function __construct()
+    public function __construct(\Gdevilbat\SpardaCMS\Modules\User\Contract\UserRepository $user_repository)
     {
         parent::__construct();
         $this->role_m = new Role_m;
-        $this->role_repository = new Repository(new Role_m, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class));
-        $this->role_user_m = new RoleUser_m;
-        $this->role_user_repository = new Repository(new RoleUser_m, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class));
         $this->user_m = new User_m;
-        $this->usermeta_m = new UserMeta_m;
-        $this->user_repository = new Repository(new User_m, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class));
+        $this->user_repository = $user_repository;
     }
 
     /**
@@ -142,115 +138,16 @@ class UserController extends CoreController
      * @param Request $request
      * @return Response
      */
-    public function store(Request $request, $callback = null)
+    public function store(Request $request)
     {
-        $validator = $this->validateUser($request);
+        $response = $this->user_repository->save($request);
 
-        $validator->sometimes('password', 'min:8', function ($input) {
-            return strlen($input->password) >= 1;
-        });
-
-        if($request->isMethod('POST'))
+        if($response->status)
         {
-            $validator->addRules([
-                'email' => 'unique:'.$this->user_m->getTable().',email',
-                'password' => 'required'
-            ]);
-        }
-        else
-        {
-            $validator->addRules([
-                'email' => 'unique:'.$this->user_m->getTable().',email,'.decrypt($request->input('id')).',id'
-            ]);
-        }
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                        ->withErrors($validator)
-                        ->withInput();
-        }
-
-        if($request->isMethod('POST'))
-        {
-            $data = $request->except('_token', '_method', 'password_confirmation', 'role_id', 'meta');
-            $user = new $this->user_m;
-        }
-        else
-        {
-            $data = $request->except('_token', '_method', 'password_confirmation', 'role_id', 'id', 'meta');
-            $user = $this->user_repository->findOrFail(decrypt($request->input('id')));
-            $this->authorize('update-user', $user);
-        }
-
-        foreach ($data as $key => $value) 
-        {
-            $user->$key = $value;
-        }
-
-        if($request->isMethod('POST'))
-        {
-            $user->created_by = Auth::id();
-        }
-
-        $user->modified_by = Auth::id();
-
-        if($user->save())
-        {
-            $role = $this->role_user_repository->find($user->id);
-            if(empty($role))
-                $role = new $this->role_user_m;
-
-            $role->user_id = $user->id;
-            $role->role_id = decrypt($request->input('role_id'));
-            $role->save();
-
-            /*=================================
-            =            Meta Data            =
-            =================================*/
-
-                $meta = [];
-
-                if($request->has('meta'))
-                {
-                    $meta = $request->input('meta');
-                }
-
-
-                foreach ($meta as $key => $value) 
-                {
-                    $usermeta = $this->usermeta_m->where(['user_id' => $user->getKey(), 'meta_key' => $key])->first();
-                    if(empty($usermeta))
-                        $usermeta = new $this->usermeta_m;
-
-                    if(!empty($value))
-                    {
-                        $usermeta->user_id = $user->getKey();
-                        $usermeta->meta_key = $key;
-                        $usermeta->meta_value = $value;
-                        $usermeta->save();
-                    }
-                    else
-                    {
-                        $usermeta->delete();
-                    }
-                }
-            
-            /*=====  End of Meta Data  ======*/
-
-            /*==================================================
-            =            Callback Action After Post            =
-            ==================================================*/
-
-                if(!empty($callback))
-                {
-                    call_user_func_array(array($this, $callback), array($request, $user));
-                }
-            
-            /*=====  End of Callback Action After Post  ======*/
 
             if($request->isMethod('POST'))
             {
-                Storage::put('users/'.$user->id.'/'.'.gitattributes', '');
+                Storage::put('users/'.$response->data->id.'/'.'.gitattributes', '');
                 return redirect(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Add User!'));
             }
             else
@@ -269,18 +166,6 @@ class UserController extends CoreController
                 return redirect()->back()->with('global_message', array('status' => 400, 'message' => 'Failed To Update User!'));
             }
         }
-    }
-
-    protected function validateUser(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|max:191',
-            'email' => 'required|email|max:191',
-            'role_id' => 'required',
-            'password' => 'confirmed'
-        ]);
-
-        return $validator;
     }
 
     /**

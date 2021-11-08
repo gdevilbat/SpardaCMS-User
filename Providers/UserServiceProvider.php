@@ -38,6 +38,11 @@ class UserServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register(RouteServiceProvider::class);
+
+        $this->app->bind(\Gdevilbat\SpardaCMS\Modules\User\Contract\UserRepository::class, function($app){
+            $acl =  config('cms-user.userRepository');
+            return new $acl(new \Gdevilbat\SpardaCMS\Modules\Core\Entities\User, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class)); 
+        });
     }
 
     /**
@@ -48,10 +53,10 @@ class UserServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('user.php'),
+            __DIR__.'/../Config/config.php' => config_path('cms-user.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'user'
+            __DIR__.'/../Config/config.php', 'cms-user'
         );
 
         $this->publishes([
