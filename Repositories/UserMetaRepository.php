@@ -9,6 +9,8 @@ use Gdevilbat\SpardaCMS\Modules\Core\Entities\User;
 
 use Validator;
 use Auth;
+use ArrayObject;
+use stdClass;
 
 /**
  * Class EloquentCoreRepository
