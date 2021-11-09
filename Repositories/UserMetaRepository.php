@@ -49,7 +49,7 @@ class UserMetaRepository extends \Gdevilbat\SpardaCMS\Modules\Core\Repositories\
 
         }
 
-        return '';
+        return new SoftObject(json_decode(json_encode([])));
     }
 
     public function getMetaData($meta_key)
