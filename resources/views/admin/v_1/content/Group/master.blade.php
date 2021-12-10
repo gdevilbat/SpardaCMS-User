@@ -170,5 +170,5 @@
 @endsection
 
 @section('page_level_js')
-    {{Html::script(module_asset_url('role:resources/views/admin/'.$theme_cms->value.'/js/role.js').'?id='.filemtime(module_asset_path('role:resources/views/admin/'.$theme_cms->value.'/js/role.js')))}}
+    {{Html::script(module_asset_url('Role:resources/views/admin/'.$theme_cms->value.'/js/role.js').'?id='.filemtime(module_asset_path('Role:resources/views/admin/'.$theme_cms->value.'/js/role.js')))}}
 @endsection
