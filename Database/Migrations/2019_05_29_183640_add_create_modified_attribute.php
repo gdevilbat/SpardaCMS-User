@@ -34,13 +34,19 @@ class AddCreateModifiedAttribute extends Migration
         Schema::table('users', function (Blueprint $table) {
             if (Schema::hasColumn('users', 'created_by'))
             {
-                $table->dropForeign(['created_by']);
+                if (\DB::getDriverName() !== 'sqlite') {
+                    $table->dropForeign(['created_by']);
+                }
                 $table->dropColumn('created_by');
             }
+        });
 
+        Schema::table('users', function (Blueprint $table) {
             if (Schema::hasColumn('users', 'modified_by'))
             {
-                $table->dropForeign(['modified_by']);
+                if (\DB::getDriverName() !== 'sqlite') {
+                    $table->dropForeign(['modified_by']);
+                }
                 $table->dropColumn('modified_by');
             }
         });
