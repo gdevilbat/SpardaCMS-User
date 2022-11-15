@@ -24,7 +24,7 @@ class UserServiceProvider extends ServiceProvider
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
-        $this->registerFactories();
+        //$this->registerFactories();
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
 
         $this->app['router']->aliasMiddleware('api.cors', \Fruitcake\Cors\HandleCors::class);
@@ -76,7 +76,7 @@ class UserServiceProvider extends ServiceProvider
     {
         $viewPath = resource_path('views/Modules/SpardaCMS/user');
 
-        $sourcePath = __DIR__.'/../resources/views';
+        $sourcePath = __DIR__.'/../Resources/views';
 
         $this->publishes([
             $sourcePath => $viewPath
@@ -99,7 +99,7 @@ class UserServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'user');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../resources/lang', 'user');
+            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'user');
         }
     }
 

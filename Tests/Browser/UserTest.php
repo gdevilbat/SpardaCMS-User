@@ -18,7 +18,7 @@ class UserTest extends DuskTestCase
      */
     public function testCRUDUser()
     {
-        $user = \App\User::find(1);
+        $user = \App\Models\User::find(1);
 
         //create Role
         $faker = \Faker\Factory::create();

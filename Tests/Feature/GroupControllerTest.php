@@ -26,7 +26,7 @@ class GroupControllerTest extends TestCase
         $response->assertStatus(302)
         		 ->assertRedirect(action('\Gdevilbat\SpardaCMS\Modules\Core\Http\Controllers\Auth\LoginController@showLoginForm')); // Return Not Valid, User Not Login
 
-        $user = \App\User::find(1);
+        $user = \App\Models\User::find(1);
 
         $response = $this->actingAs($user)
         				 ->from(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\GroupController@index'))
@@ -42,7 +42,7 @@ class GroupControllerTest extends TestCase
         $response->assertStatus(302)
                  ->assertRedirect(action('\Gdevilbat\SpardaCMS\Modules\Core\Http\Controllers\Auth\LoginController@showLoginForm')); // Return Not Valid, User Not Login
 
-        $user = \App\User::find(1);
+        $user = \App\Models\User::find(1);
 
         $response = $this->actingAs($user)
         				 ->get(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\GroupController@create'))
@@ -51,7 +51,7 @@ class GroupControllerTest extends TestCase
 
     public function testCreateUpdateDataGroup()
     {
-        $user = \App\User::find(1);
+        $user = \App\Models\User::find(1);
 
         /*===================================
         =            Create Test            =

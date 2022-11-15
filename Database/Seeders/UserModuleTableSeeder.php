@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 use DB;
 
+use Gdevilbat\SpardaCMS\Modules\Core\Entities\Module;
+
 class UserModuleTableSeeder extends Seeder
 {
     /**
@@ -18,14 +20,14 @@ class UserModuleTableSeeder extends Seeder
     {
         Model::unguard();
 
-        DB::table('module')->insert([
+        Module::firstOrCreate(
+            ['slug' => 'user'],
             [
                 'name' => 'User',
-                'slug' => 'user',
-                'scope' => json_encode(array('menu', 'create', 'read', 'update', 'delete', 'group')),
+                'scope' => array('menu', 'create', 'read', 'update', 'delete', 'group'),
                 'is_scanable' => '1',
                 'created_at' => \Carbon\Carbon::now()
             ]
-        ]);
+        );
     }
 }
