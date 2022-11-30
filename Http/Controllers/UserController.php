@@ -117,6 +117,7 @@ class UserController extends CoreController
                             ->whereDoesntHave('role',function($query){
                                 $query->where('slug', 'super-admin');
                             })
+                            ->where('id', '!=', Auth::user()->id)
                             ->orderBy($column, $dir);
 
         if($searchValue)
