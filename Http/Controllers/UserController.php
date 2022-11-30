@@ -130,6 +130,13 @@ class UserController extends CoreController
 
         $data = $query->paginate($length);
 
+        $data->each(function ($user) {
+            $user->permissions = [
+                'update' => Auth::user()->can('update-user', $user),
+                'delete' => Auth::user()->can('delete-user', $user),
+            ];
+        });
+
         return new DataTableCollectionResource($data);
     }
 
