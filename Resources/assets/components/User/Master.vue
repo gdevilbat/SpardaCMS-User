@@ -26,7 +26,7 @@
                             {{updated.message}}
                         </div>
                     </div>
-                    <div class="row mb-4">
+                    <div class="row mb-4" v-if="$parent.permissions.create_user">
                         <div class="col-md-5">
                             <router-link :to="{name: 'user-form'}" class="btn btn-brand m-btn m-btn--custom m-btn--icon m-btn--pill m-btn--air">
                                 <span>
