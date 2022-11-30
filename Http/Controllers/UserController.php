@@ -19,6 +19,8 @@ use View;
 use Auth;
 use Storage;
 
+use JamesDordoy\LaravelVueDatatable\Http\Resources\DataTableCollectionResource;
+
 class UserController extends CoreController
 {
     public function __construct(\Gdevilbat\SpardaCMS\Modules\User\Contract\UserRepository $user_repository)
@@ -103,6 +105,33 @@ class UserController extends CoreController
         return ['data' => $data, 'draw' => (integer)$request->input('draw'), 'recordsTotal' => $recordsTotal, 'recordsFiltered' => $filteredTotal];
     }
 
+    public function data(Request $request)
+    {
+        $length = $request->input('length');
+        $column = $request->input('column');
+        $dir = $request->input('dir');
+        $searchValue = $request->input('search');
+
+        $query = $this->user_repository->buildQueryByCreatedUser([])
+                            ->with('role')
+                            ->whereDoesntHave('role',function($query){
+                                $query->where('slug', 'super-admin');
+                            })
+                            ->orderBy($column, $dir);
+
+        if($searchValue)
+        {
+            $query->where(DB::raw("CONCAT(name,'-',email,'-',created_at)"), 'like', '%'.$searchValue.'%')
+                     ->orWhereHas('role', function($query) use ($searchValue){
+                        $query->where(DB::raw("CONCAT(name,'-',slug)"), 'like', '%'.$searchValue.'%');
+                     });
+        }
+
+        $data = $query->paginate($length);
+
+        return new DataTableCollectionResource($data);
+    }
+
     private function getActionTable($user)
     {
         $view = View::make('user::admin.'.$this->data['theme_cms']->value.'.content.User.service_master', [
@@ -148,24 +177,87 @@ class UserController extends CoreController
             if($request->isMethod('POST'))
             {
                 Storage::put('users/'.$response->data->id.'/'.'.gitattributes', '');
-                return redirect(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Add User!'));
+
+                if($request->ajax()){
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Successfully Add User!',
+                        'code' => 200
+                    ]);
+                }else{
+                    return redirect(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Add User!'));
+                }
             }
             else
             {
-                return redirect(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Update User!'));
+                if($request->ajax()){
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Successfully Update User!',
+                        'code' => 200
+                    ]);
+                }else{
+                    return redirect(action('\Gdevilbat\SpardaCMS\Modules\User\Http\Controllers\UserController@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Update User!'));
+                }
             }
         }
         else
         {
             if($request->isMethod('POST'))
             {
-                return redirect()->back()->with('global_message', array('status' => 400, 'message' => 'Failed To Add User!'));
+                if($request->ajax()){
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Failed To Add User!',
+                        'code' => 400
+                    ]);
+                }else{
+                    return redirect()->back()->with('global_message', array('status' => 400, 'message' => 'Failed To Add User!'));
+                }
             }
             else
             {
-                return redirect()->back()->with('global_message', array('status' => 400, 'message' => 'Failed To Update User!'));
+                if($request->ajax()){
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Failed To Update User!',
+                        'code' => 400
+                    ]);
+                }else{
+                    return redirect()->back()->with('global_message', array('status' => 400, 'message' => 'Failed To Update User!'));
+                }
             }
         }
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function show(Request $request)
+    {
+        $roles = $this->role_m->where('slug', '!=', 'super-admin')->get();
+
+        if($request->has('code')){
+            $user = $this->user_repository->with(['role', 'userMeta'])->findOrFail(decrypt($request->input('code')));
+            $this->authorize('update-user', $user);
+
+            $data = [
+                'user' => $user,
+                'roles' => $roles
+            ];
+        }else{
+            $data = [
+                'user' => ['role' => []],
+                'roles' => $roles
+            ];
+        }
+
+        return response([
+            'status' => true,
+            'data' => $data
+        ]);
     }
 
     /**
@@ -175,18 +267,34 @@ class UserController extends CoreController
      */
     public function destroy(Request $request)
     {
-        $query = $this->user_m->findOrFail(decrypt($request->input('id')));
-        $this->authorize('delete-user', $query);
+        $user = $this->user_m->findOrFail(decrypt($request->input('id')));
+        $this->authorize('delete-user', $user);
 
         try {
-            if($query->delete())
+            if($user->delete())
             {
                 Storage::deleteDirectory('users/'.decrypt($request->input('id')));
-                return redirect(action('\\'.get_class($this).'@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Delete User!'));
+                if($request->ajax()){
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Successfully Delete User!',
+                        'code' => 200
+                    ]);
+                }else{
+                   return redirect(action('\\'.get_class($this).'@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Delete User!'));
+                }
             }
             
         } catch (\Exception $e) {
-            return redirect(action('\\'.get_class($this).'@index'))->with('global_message', array('status' => 200,'message' => 'Failed Delete User, It\'s Has Been Used!'));
+            if($request->ajax()){
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Failed Delete User, It\'s Has Been Used!',
+                    'code' => 400
+                ]);
+            }else{
+                return redirect(action('\\'.get_class($this).'@index'))->with('global_message', array('status' => 200,'message' => 'Successfully Delete User!'));
+            }
         }
     }
 }

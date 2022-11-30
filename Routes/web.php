@@ -30,6 +30,9 @@ Route::group(['prefix' => 'control', 'middleware' => 'core.auth'], function() {
 	        /*=====  End of User CMS  ======*/
 		});
 
+		Route::post('show', 'UserController@show');
+		Route::post('data', 'UserController@data')->middleware('can:menu-user');
+
 	    Route::group(['prefix' => 'api'], function() {
 		    Route::get('master', 'UserController@serviceMaster')->middleware('can:menu-user');
 	    });

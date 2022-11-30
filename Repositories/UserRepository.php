@@ -21,6 +21,7 @@ class UserRepository extends \Gdevilbat\SpardaCMS\Modules\Core\Repositories\Abst
 	public function __construct(\Gdevilbat\SpardaCMS\Modules\Core\Entities\User $model, \Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository $acl)
     {
         parent::__construct($model, $acl);
+        $this->setModule('user');
         $this->role_user_m = new RoleUser_m;
         $this->role_user_repository = new Repository(new RoleUser_m, resolve(\Gdevilbat\SpardaCMS\Modules\Role\Repositories\Contract\AuthenticationRepository::class));
         $this->usermeta_m = new UserMeta_m;
