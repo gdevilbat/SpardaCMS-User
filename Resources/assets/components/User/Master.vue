@@ -106,7 +106,7 @@
                         label: 'created_at',
                         name: 'created_at',
                         orderable: true,
-                        transform: ({data, name}) => moment(`${data[name]}`).format('YYYY-MM-DD hh:MM::ss'),
+                        transform: ({data, name}) => moment(`${data[name]}`).format('YYYY-MM-DD hh:mm::ss'),
                     },
                     {
                         label: 'Action',
